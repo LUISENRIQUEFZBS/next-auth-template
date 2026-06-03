@@ -1,0 +1,19 @@
+{
+  "Dashboard": {
+    "title": "Dashboard",
+    "description": "You are successfully logged in! This is a protected page that only authenticated users can access."
+  },
+  "login": {
+    "title": "Welcome back",
+    "subtitle": "Sign in to continue to your dashboard",
+    "google": "Sign in with Google",
+    "terms": "By continuing you agree to our Terms & Privacy Policy"
+  },
+    "profile": {
+    "myProfile": "My Profile",
+    "settings": "Settings",
+    "adminPanel": "Admin Panel",
+    "signOut": "Sign out",
+    "admin": "Admin"
+  }
+}

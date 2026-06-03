@@ -1,0 +1,19 @@
+{
+  "Dashboard": {
+    "title": "Panel",
+    "description": "Has iniciado sesión correctamente. Esta es una página protegida a la que solo pueden acceder los usuarios autenticados."
+  },
+   "login": {
+    "title": "Bienvenido de nuevo",
+    "subtitle": "Inicia sesión para continuar a tu panel",
+    "google": "Iniciar sesión con Google",
+    "terms": "Al continuar aceptas nuestros Términos y Política de Privacidad"
+  },
+    "profile": {
+    "myProfile": "Mi perfil",
+    "settings": "Configuración",
+    "adminPanel": "Panel de admin",
+    "signOut": "Cerrar sesión",
+    "admin": "Administrador"
+  }
+}
