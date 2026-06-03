@@ -14,7 +14,9 @@ export const authOptions = {
 
   callbacks: {
     // 1. RUN ON LOGIN → create/update user in DB
-    async signIn({ user }) {
+    // IF user exists → update ( users may change their name or profile picture in Google, so we want to update that in our DB )
+    // IF user does not exist → create
+    async signIn({ user }: any) {
       if (!user.email) return false;
 
       await prisma.user.upsert({
@@ -37,9 +39,9 @@ export const authOptions = {
     },
 
     // 2. ADD DB DATA INTO SESSION
-    async session({ session }) {
+    async session({ session }: any) {
       if (!session.user?.email) return session;
-
+      // Fetch real DB user:
       const dbUser = await prisma.user.findUnique({
         where: {
           email: session.user.email,
