@@ -9,3 +9,9 @@ export default withAuth({
 export const config = {
   matcher: ["/dashboard/:path*"],
 };
+
+// callbacks: {
+//   authorized: ({ token }) => {
+//     return !!token;
+//   },
+// }
