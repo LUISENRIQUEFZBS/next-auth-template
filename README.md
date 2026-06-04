@@ -25,5 +25,5 @@ This starter is designed to be reused as a **foundation for SaaS apps, dashboard
 ### Install dependencies
 
 ```bash
-npm install
+npm install	
 ---
