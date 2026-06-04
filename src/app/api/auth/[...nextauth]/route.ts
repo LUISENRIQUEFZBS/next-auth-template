@@ -1,6 +1,20 @@
-import NextAuth from "next-auth";
+import NextAuth, { Account, Profile, Session, User } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import { prisma } from "@/lib/prisma";
+
+
+// Optional: Extend the NextAuth session types so TypeScript recognizes 'role' and 'id'
+declare module "next-auth" {
+  interface Session {
+    user?: {
+      name?: string | null;
+      email?: string | null;
+      image?: string | null;
+      id?: string;
+      role?: string;
+    };
+  }
+}
 
 export const authOptions = {
   providers: [
@@ -16,7 +30,7 @@ export const authOptions = {
     // 1. RUN ON LOGIN → create/update user in DB
     // IF user exists → update ( users may change their name or profile picture in Google, so we want to update that in our DB )
     // IF user does not exist → create
-    async signIn({ user }: any) {
+    async signIn({ user }: { user: User; account: Account | null; profile?: Profile }) {
       if (!user.email) return false;
 
       await prisma.user.upsert({
@@ -39,7 +53,7 @@ export const authOptions = {
     },
 
     // 2. ADD DB DATA INTO SESSION
-    async session({ session }: any) {
+    async session({ session }: { session: Session }) {
       if (!session.user?.email) return session;
       // Fetch real DB user:
       const dbUser = await prisma.user.findUnique({
