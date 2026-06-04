@@ -1,18 +1,26 @@
 import NextAuth, { Account, Profile, Session, User } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import { prisma } from "@/lib/prisma";
+import { DefaultSession } from "next-auth";
+import { JWT } from "next-auth/jwt";
 
-
-// Optional: Extend the NextAuth session types so TypeScript recognizes 'role' and 'id'
 declare module "next-auth" {
   interface Session {
-    user?: {
-      name?: string | null;
-      email?: string | null;
-      image?: string | null;
-      id?: string;
-      role?: string;
-    };
+    user: {
+      id: string;
+      role: string;
+    } & DefaultSession["user"];
+  }
+
+  interface User {
+    role: string;
+  }
+}
+
+declare module "next-auth/jwt" {
+  interface JWT {
+    id: string;
+    role: string;
   }
 }
 
@@ -27,6 +35,7 @@ export const authOptions = {
   secret: process.env.NEXTAUTH_SECRET,
 
   callbacks: {
+    
     // 1. RUN ON LOGIN → create/update user in DB
     // IF user exists → update ( users may change their name or profile picture in Google, so we want to update that in our DB )
     // IF user does not exist → create
@@ -51,20 +60,32 @@ export const authOptions = {
 
       return true;
     },
+    // 2. JWT → runs ONCE after login (this is the improvement)
+    async jwt({ token, user }: { token: JWT; user?: User }) {
+      // runs on login OR when token is created
+      if (user) {
+        // FIRST LOGIN ONLY
+        const dbUser = await prisma.user.findUnique({
+          where: { email: user.email! },
+        });
 
-    // 2. ADD DB DATA INTO SESSION
-    async session({ session }: { session: Session }) {
-      if (!session.user?.email) return session;
-      // Fetch real DB user:
-      const dbUser = await prisma.user.findUnique({
-        where: {
-          email: session.user.email,
-        },
-      });
+        if (dbUser) {
+          token.id = dbUser.id;
+          token.role = dbUser.role;
+        }
 
-      if (dbUser) {
-        session.user.id = dbUser.id;
-        session.user.role = dbUser.role;
+        return token;
+      }
+
+      // AFTER LOGIN → just reuse token (NO DB CALL)
+      return token;
+    },
+
+    // 3. ADD DB DATA INTO SESSION
+    async session({ session, token }:{session: Session;token: JWT;}) {
+      if (session.user) {
+        session.user.id = token.id as string;
+        session.user.role = token.role as string;
       }
 
       return session;
